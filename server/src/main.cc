@@ -20,6 +20,7 @@
 #include "debug.h"
 #include "vcon_client.h"
 #include "vcon_fe.h"
+#include "virtio_client.h"
 #include "async_vcon_fe.h"
 #include "registry.h"
 #include "server.h"
@@ -86,7 +87,8 @@ public:
 
   bool collected() { return false; }
 
-  int create(cxx::String const &name, int color, Vcon_client **,
+  template< typename CLI >
+  int create(cxx::String const &name, int color, CLI **,
              size_t bufsz, Client::Key key);
   int op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
                 l4_mword_t proto, L4::Ipc::Varg_list_ref args);
@@ -126,9 +128,10 @@ Cons_svr::sys_msg(char const *fmt, ...)
   return r;
 }
 
+template< typename CLI >
 int
 Cons_svr::create(cxx::String const &name, int color,
-                 Vcon_client **vout, size_t bufsz, Client::Key key)
+                 CLI **vout, size_t bufsz, Client::Key key)
 {
   typedef Controller::Client_iter Client_iter;
   Client_iter c = std::find_if(_ctl.clients.begin(),
@@ -145,8 +148,8 @@ Cons_svr::create(cxx::String const &name, int color,
                    Client::Equal_tag(_name));
 
 
-  Vcon_client *v = new Vcon_client(std::string(_name.start(), _name.len()),
-                                   color, bufsz, key, &registry);
+  CLI *v = new CLI(std::string(_name.start(), _name.len()),
+                   color, bufsz, key, &registry);
   if (!v)
     return -L4_ENOMEM;
 
@@ -180,6 +183,7 @@ Cons_svr::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
   switch (proto)
     {
     case (l4_mword_t)L4_PROTO_LOG:
+    case 1:
         {
           // copied from moe/server/src/alloc.cc
 
@@ -257,9 +261,24 @@ Cons_svr::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
                 }
             }
 
-          Vcon_client *v;
-          if (int r = create(n, color, &v, bufsz, key))
-            return r;
+          Client *v;
+          L4::Cap<void> v_cap;
+          if (proto == 1)
+            {
+              Virtio_cons *_v;
+              if (int r = create(n, color, &_v, bufsz, key))
+                return r;
+              v = _v;
+              v_cap = _v->obj_cap();
+            }
+          else
+            {
+              Vcon_client *_v;
+              if (int r = create(n, color, &_v, bufsz, key))
+                return r;
+              v = _v;
+              v_cap = _v->obj_cap();
+            }
 
           if (show && _muxe.front())
             _muxe.front()->show(v);
@@ -278,7 +297,7 @@ Cons_svr::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
                 }
             }
 
-          obj = L4::Ipc::make_cap(v->obj_cap(), L4_CAP_FPAGE_RWSD);
+          obj = L4::Ipc::make_cap(v_cap, L4_CAP_FPAGE_RWSD);
           return L4_EOK;
         }
       break;
