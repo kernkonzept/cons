@@ -290,14 +290,15 @@ Controller::cmd_list(Mux *mux, int argc, Arg *args)
 
   for (Client_iter i = clients.begin(); i != clients.end(); ++i)
     {
-      mux->printf("%14s%s%.0d %c%c%c [%8s] out:%5ld/%6ld in:%5ld/%5ld",
+      mux->printf("%14s%s%.0d %c%c%c [%8s] out:%5ld/%6ld in:%5ld/%5ld%s",
                   i->tag().c_str(), i->idx ? ":" : "", i->idx,
                   i->key().is_nil() ? ' ': '(',
                   i->key().is_nil() ? ' ': i->key().v(),
                   i->key().is_nil() ? ' ': ')',
                   i->output_mux() ?  i->output_mux()->name() : "",
                   i->wbuf()->stat_lines(), i->wbuf()->stat_bytes(),
-                  i->rbuf()->stat_lines(), i->rbuf()->stat_bytes());
+                  i->rbuf()->stat_lines(), i->rbuf()->stat_bytes(),
+                  i->dead() ? " [X]" : "");
 
       if (long_mode)
         mux->printf(" pend=%d attr:o=%lo,i=%lo,l=%lo",
