@@ -1,5 +1,13 @@
 // vi:ft=c
 /**
+ * \page l4re_servers L4Re Servers
+ *
+ *  - \subpage l4re_servers_cons
+ *
+ *     An interactive multiplexer for
+ *     console in- and output. It buffers the output from different %L4
+ *     clients and allows to switch between them to redirect input.
+ *
  * \page l4re_servers_cons Cons, the Console Multiplexer
  *
  * cons allows to multiplex console output from different L4 clients
