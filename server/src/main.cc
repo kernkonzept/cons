@@ -50,6 +50,7 @@ struct Config_opts
 {
   bool default_show_all;
   bool default_keep;
+  bool default_timestamp;
   std::string auto_connect_console;
 };
 
@@ -227,6 +228,7 @@ Cons_svr::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
 
           bool show = config.default_show_all;
           bool keep = config.default_keep;
+          bool timestamp = config.default_timestamp;
           Client::Key key;
           size_t bufsz = 0;
 
@@ -243,6 +245,10 @@ Cons_svr::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
                     show = true;
                   else if (cs == "keep")
                     keep = true;
+                  else if (cs == "timestamp")
+                    timestamp = true;
+                  else if (cs == "no-timestamp")
+                    timestamp = false;
                   else if (cxx::String::Index k = cs.starts_with("key="))
                     key = *k;
                   else if (cxx::String::Index v = cs.starts_with("bufsz="))
@@ -259,6 +265,8 @@ Cons_svr::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
 
           if (keep)
             v->keep(v);
+
+          v->timestamp(timestamp);
 
           for (Mux_iter i = _muxe.begin(); i != _muxe.end(); ++i)
             {
@@ -289,6 +297,7 @@ static int work(int argc, char const *argv[])
     OPT_MUX = 'm',
     OPT_FE = 'f',
     OPT_KEEP = 'k',
+    OPT_TIMESTAMP = 't',
     OPT_AUTOCONNECT = 'c',
     OPT_DEFAULT_NAME = 'n',
     OPT_DEFAULT_BUFSIZE = 'B',
@@ -300,6 +309,7 @@ static int work(int argc, char const *argv[])
     { "mux",            required_argument, 0, OPT_MUX },
     { "frontend",       required_argument, 0, OPT_FE },
     { "keep",           no_argument,       0, OPT_KEEP },
+    { "timestamp",      no_argument,       0, OPT_TIMESTAMP },
     { "autoconnect",    required_argument, 0, OPT_AUTOCONNECT },
     { "defaultname",    required_argument, 0, OPT_DEFAULT_NAME },
     { "defaultbufsize", required_argument, 0, OPT_DEFAULT_BUFSIZE },
@@ -324,7 +334,7 @@ static int work(int argc, char const *argv[])
     {
       int optidx = 0;
       int c = getopt_long(argc, const_cast<char *const*>(argv),
-                          "am:f:kc:n:B:", opts, &optidx);
+                          "am:f:kc:n:B:t", opts, &optidx);
       if (c == -1)
         break;
 
@@ -363,6 +373,9 @@ static int work(int argc, char const *argv[])
           break;
         case OPT_KEEP:
           config.default_keep = true;
+          break;
+        case OPT_TIMESTAMP:
+          config.default_timestamp = true;
           break;
         case OPT_AUTOCONNECT:
           if (current_mux)
