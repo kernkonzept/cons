@@ -283,7 +283,8 @@ static int work(int argc, char const *argv[])
 {
   printf("Console Server\n");
 
-  enum {
+  enum
+  {
     OPT_SHOW_ALL = 'a',
     OPT_MUX = 'm',
     OPT_FE = 'f',
@@ -295,14 +296,14 @@ static int work(int argc, char const *argv[])
 
   static option opts[] =
   {
-      { "show-all", 0, 0, OPT_SHOW_ALL },
-      { "mux", 1, 0, OPT_MUX },
-      { "frontend", 1, 0, OPT_FE },
-      { "keep", 0, 0, OPT_KEEP },
-      { "autoconnect", 1, 0, OPT_AUTOCONNECT },
-      { "defaultname", 1, 0, OPT_DEFAULT_NAME },
-      { "defaultbufsize", 1, 0, OPT_DEFAULT_BUFSIZE },
-      { 0, 0, 0, 0 },
+    { "show-all",       no_argument,       0, OPT_SHOW_ALL },
+    { "mux",            required_argument, 0, OPT_MUX },
+    { "frontend",       required_argument, 0, OPT_FE },
+    { "keep",           no_argument,       0, OPT_KEEP },
+    { "autoconnect",    required_argument, 0, OPT_AUTOCONNECT },
+    { "defaultname",    required_argument, 0, OPT_DEFAULT_NAME },
+    { "defaultbufsize", required_argument, 0, OPT_DEFAULT_BUFSIZE },
+    { 0, 0, 0, 0 },
   };
 
   Cons_svr *cons = new Cons_svr("cons");
