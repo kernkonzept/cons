@@ -245,6 +245,8 @@ Cons_svr::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
                     show = true;
                   else if (cs == "keep")
                     keep = true;
+                  else if (cs == "no-keep")
+                    keep = false;
                   else if (cs == "timestamp")
                     timestamp = true;
                   else if (cs == "no-timestamp")
