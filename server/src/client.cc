@@ -39,7 +39,7 @@ Client::print_timestamp()
   struct tm *tt = localtime(&t);
   char b[25];
 
-  if (int l = strftime(b, sizeof(b), "[%d %b %y %T] ", tt))
+  if (int l = strftime(b, sizeof(b), "[%Y-%m-%d %T] ", tt))
     wbuf()->put(b, l);
 }
 
