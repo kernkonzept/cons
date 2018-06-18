@@ -181,7 +181,7 @@ public:
 
     int get(int offset, char const **d) const
     {
-      if ((typeof(_sum_bytes))offset >= _sum_bytes)
+      if (offset < 0 || (unsigned)offset >= _sum_bytes)
         return 0;
 
       offset = (_tail + offset) % _bufsz;
