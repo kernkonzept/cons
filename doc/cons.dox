@@ -58,9 +58,9 @@
  *
  *     Default buffer size per client in bytes. Default: 40960
  *
- *   * `-m <prompt name>`, `--mux <promt name>`
+ *   * `-m <prompt name>`, `--mux <prompt name>`
  *
- *     Add a new multiplexer named <prompt name>. This is necessary if output
+ *     Add a new multiplexer named \<prompt name\>. This is necessary if output
  *     should be sent to different frontends.
  *
  *   * `-f <cap>`, `--frontend <cap>`
