@@ -46,6 +46,7 @@ class Mux_i : public Mux, private Pbuf::Sink
 {
 public:
   explicit Mux_i(Controller *ctl, char const *name);
+  ~Mux_i() { delete _self_client; }
 
   void write_tag(Client *client);
   void write(Client *tag, const char *msg, unsigned len_msg);
