@@ -109,8 +109,7 @@ private:
 Cons_svr::Cons_svr(const char* name)
 : _info(Dbg::Info, name), _err(Dbg::Err, name)
 {
-  _err.set_level(~0U);
-  _info.set_level(~0U);
+  Dbg::set_level(~0U);
 }
 
 int
