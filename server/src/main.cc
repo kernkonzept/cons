@@ -183,12 +183,12 @@ Cons_svr::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
         {
           // copied from moe/server/src/alloc.cc
 
-          L4::Ipc::Varg tag = args.next();
+          L4::Ipc::Varg tag = args.pop_front();
 
           if (!tag.is_of<char const *>())
             return -L4_EINVAL;
 
-          L4::Ipc::Varg col = args.next();
+          L4::Ipc::Varg col = args.pop_front();
 
           int color;
           if (col.is_of<char const *>())
@@ -231,7 +231,7 @@ Cons_svr::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
           Client::Key key;
           size_t bufsz = 0;
 
-          for (L4::Ipc::Varg opts = args.next(); !opts.is_nil(); opts = args.next())
+          for (L4::Ipc::Varg opts: args)
             {
               if (opts.is_of<char const *>())
                 {
