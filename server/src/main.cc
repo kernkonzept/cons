@@ -22,6 +22,7 @@
 #include "async_vcon_fe.h"
 #include "registry.h"
 #include "server.h"
+#include "virtio_console_fe.h"
 
 #include <l4/re/util/icu_svr>
 #include <l4/re/util/vcon_svr>
@@ -331,6 +332,7 @@ int main(int argc, char const *argv[])
     OPT_SHOW_ALL = 'a',
     OPT_MUX = 'm',
     OPT_FE = 'f',
+    OPT_VFE = 'V',
     OPT_KEEP = 'k',
     OPT_NO_LINE_BUFFERING = 'l',
     OPT_LINE_BUFFERING_MS = 1,
@@ -345,6 +347,7 @@ int main(int argc, char const *argv[])
     { "show-all",          no_argument,       0, OPT_SHOW_ALL },
     { "mux",               required_argument, 0, OPT_MUX },
     { "frontend",          required_argument, 0, OPT_FE },
+    { "virtio-device-frontend", required_argument, 0, OPT_VFE },
     { "keep",              no_argument,       0, OPT_KEEP },
     { "no-line-buffering", no_argument,       0, OPT_NO_LINE_BUFFERING },
     { "line-buffering-ms", required_argument, 0, OPT_LINE_BUFFERING_MS },
@@ -373,7 +376,7 @@ int main(int argc, char const *argv[])
     {
       int optidx = 0;
       int c = getopt_long(argc, const_cast<char *const*>(argv),
-                          "am:f:klc:n:B:t", opts, &optidx);
+                          "am:f:klc:n:B:tV:", opts, &optidx);
       if (c == -1)
         break;
 
@@ -409,6 +412,22 @@ int main(int argc, char const *argv[])
               current_fe = new Fe(cap, &registry);
               current_mux->add_frontend(current_fe);
             }
+          break;
+        case OPT_VFE:
+          if (!current_mux)
+            {
+              printf("ERROR: need to instantiate a muxer (--mux) before\n"
+                     "using the --virtio-device-frontend option.\n");
+              break;
+            }
+          {
+            auto fe = new Virtio_console_fe(&registry);
+            auto cap = registry.register_obj(fe, optarg);
+
+            L4Re::chkcap(cap, "Could not register virtio_console "
+                              "device frontend\n");
+            current_mux->add_frontend(fe);
+          }
           break;
         case OPT_KEEP:
           config.default_keep = true;

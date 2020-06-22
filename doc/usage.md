@@ -74,6 +74,28 @@ cons accepts the following command line switches:
   is then sent to the capability with the given name `<cap>`. The server
   connected to the capability needs to understand the L4::Vcon protocol.
 
+* `-V <cap>`, `--virtio-device-frontend <cap>`
+
+  Set a virtio-console frontend for the current multiplexer. This behaves
+  identical to the `--frontend` option except that this frontend implements
+  a virtio-console device that --for example-- can be connected to a
+  virtio proxy in uvmm.
+
+  Example lua:
+
+        -- use 'cons_svr' to create client sessions
+        local cons_svr = loader:new_channel()
+        -- connect 'virtio_device' with a virtio driver (e.g. Uvmm)
+        local virtio_device = loader:new_channel()
+        loader:start(
+          {
+            caps = {
+              virtio = virtio_device,
+              cons = cons_svr:svr(),
+            },
+           log = {"cons", "blue"},
+          }, "cons -m guests -V virtio")
+
 * `-k`, `--keep`
 
   Keep the console buffer when a client disconnects.
