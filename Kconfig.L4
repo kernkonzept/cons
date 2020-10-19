@@ -1,0 +1,10 @@
+menu "cons console multiplexer"
+
+config CONS_USE_ASYNC_FE
+	bool "Support and use asynchronous interface"
+	help
+	  This enables an asynchronous interface for cons using threads.
+
+	  Only enable this if you know what you are doing. If in doubt select N.
+
+endmenu

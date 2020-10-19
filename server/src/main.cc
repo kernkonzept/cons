@@ -41,7 +41,9 @@
 #include <set>
 #include <getopt.h>
 
-#ifdef USE_ASYNC_FE
+#include <l4/bid_config.h>
+
+#ifdef CONFIG_CONS_USE_ASYNC_FE
 typedef Async_vcon_fe Fe;
 #else
 typedef Vcon_fe Fe;
