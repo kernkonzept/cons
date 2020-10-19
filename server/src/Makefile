@@ -13,8 +13,4 @@ DEFINES-$(USE_ASYNC_FE) := -DUSE_ASYNC_FE
 REQUIRES_LIBS                 = libstdc++ cxx_libc_io cxx_io
 REQUIRES_LIBS-$(USE_ASYNC_FE) = libpthread
 
-SRC_CC        += $(SRC_CC-y)
-REQUIRES_LIBS += $(REQUIRES_LIBS-y)
-DEFINES       += $(DEFINES-y)
-
 include $(L4DIR)/mk/prog.mk
