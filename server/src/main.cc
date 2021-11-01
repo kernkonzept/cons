@@ -58,7 +58,7 @@ struct Config_opts
 static Config_opts config;
 
 
-static L4::Server<L4Re::Util::Br_manager_hooks>  server(l4_utcb());
+static L4::Server<L4Re::Util::Br_manager_hooks> server;
 static Registry registry(&server);
 
 class My_mux : public Mux_i, public cxx::H_list_item
