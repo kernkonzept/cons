@@ -35,6 +35,8 @@
 #include <l4/cxx/iostream>
 #include <l4/sys/cxx/ipc_epiface>
 
+#include <terminate_handler-l4>
+
 #include <algorithm>
 #include <set>
 #include <getopt.h>
@@ -307,7 +309,7 @@ Cons_svr::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
 }
 
 
-static int work(int argc, char const *argv[])
+int main(int argc, char const *argv[])
 {
   printf("Console Server\n");
 
@@ -428,18 +430,4 @@ static int work(int argc, char const *argv[])
 
   server.loop<L4::Runtime_error>(&registry);
   return 0;
-}
-
-
-int main(int argc, char const *argv[])
-{
-  try
-    {
-      return work(argc, argv);
-    }
-  catch (L4::Runtime_error const &e)
-    {
-      L4::cout << e;
-      return 1;
-    }
 }
