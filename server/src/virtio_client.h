@@ -73,7 +73,7 @@ public:
     _attr.o_flags = 0;
   }
 
-  void register_single_driver_irq()
+  void register_single_driver_irq() override
   {
     kick_guest_irq = L4Re::Util::Unique_cap<L4::Irq>(
         L4Re::chkcap(server_iface()->rcv_cap<L4::Irq>(0)));
@@ -85,10 +85,10 @@ public:
     kick_guest_irq->trigger();
   }
 
-  L4::Cap<L4::Irq> device_notify_irq() const
+  L4::Cap<L4::Irq> device_notify_irq() const override
   { return L4::cap_cast<L4::Irq>(_host_irq.obj_cap()); }
 
-  void reset()
+  void reset() override
   {
     for (L4virtio::Svr::Virtqueue &q: _q)
       q.disable();
@@ -97,7 +97,7 @@ public:
   template<typename T, unsigned N >
   static unsigned array_length(T (&)[N]) { return N; }
 
-  int reconfig_queue(unsigned index)
+  int reconfig_queue(unsigned index) override
   {
     if (index >= array_length(_q))
       return -L4_ERANGE;
@@ -108,7 +108,7 @@ public:
     return -L4_EINVAL;
   }
 
-  bool check_queues()
+  bool check_queues() override
   {
     for (L4virtio::Svr::Virtqueue &q: _q)
       if (!q.ready())
@@ -133,19 +133,19 @@ public:
     kick_guest_irq->trigger();
   }
 
-  bool collected() { return Client::collected(); }
+  bool collected() override { return Client::collected(); }
 
   void kick();
   void handle_tx();
   void handle_rx();
-  void trigger() const { const_cast<Virtio_cons*>(this)->kick(); }
+  void trigger() const override { const_cast<Virtio_cons*>(this)->kick(); }
 
   static void default_obuf_size(unsigned bufsz)
   {
     _dfl_obufsz = cxx::max(512U, cxx::min(16U << 20, bufsz));
   }
 
-  Server_iface *server_iface() const
+  Server_iface *server_iface() const override
   { return Server_object::server_iface(); }
 };
 
