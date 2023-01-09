@@ -29,6 +29,9 @@ public:
   void gc_sweep();
   void gc_step();
 
+  // Tell the compiler that we are aware of the base function to prevent a
+  // compiler warning.
+  using L4Re::Util::Object_registry::register_obj;
   L4::Cap<void> register_obj(Server_object *o, char const *service);
   L4::Cap<void> register_obj(Server_object *o);
 };
