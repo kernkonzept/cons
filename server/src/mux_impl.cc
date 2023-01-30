@@ -72,7 +72,7 @@ public:
 }
 
 Mux_i::Mux_i(Controller *ctl, char const *name)
-: _fe(0), _self_client(new Mux_client(this)),
+: _fe(), _self_client(new Mux_client(this)),
   ob(this), _last_output_client(0),
   _connected(_self_client), _tag_len(8), _ctl(ctl),
   _name(name), _seq_str("[Ctrl-E]")
