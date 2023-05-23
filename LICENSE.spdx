@@ -1,0 +1,23 @@
+## This file states the license of this package and possibly its subpackages
+## in machine and human readable format. The PackageName refers to the package
+## whose license is defined by PackageLicenseConcluded.
+## For more information about this file format visit the SPDX website at
+## https://spdx.org
+
+SPDXVersion: SPDX-2.3
+DataLicense: CC0-1.0
+SPDXID: SPDXRef-DOCUMENT
+DocumentNamespace: spdx:kernkonzept/cons-049d582b-e400-4632-8664-ee21b589b74e
+DocumentName: cons
+Creator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+Created: 2018-12-21T00:00:00Z
+
+## Package Information
+PackageName: cons
+SPDXID: SPDXRef-cons
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only
+FilesAnalyzed: false
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
