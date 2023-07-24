@@ -13,9 +13,7 @@
 #include <time.h>
 
 Client::Client(std::string const &tag, int color, int rsz, int wsz, Key key)
-: idx(0), _col(color), _tag(tag), _p(false), _keep(false),
-  _timestamp(false), _new_line(true), _dead(false),
-  _key(key), _wb(wsz), _rb(rsz), _output(0)
+: _col(color), _tag(tag), _key(key), _wb(wsz), _rb(rsz)
 {
   _attr.i_flags = L4_VCON_ICRNL;
   _attr.o_flags = L4_VCON_ONLRET | L4_VCON_ONLCR;

@@ -91,10 +91,10 @@ public:
     };
 
     explicit Buf(size_t sz)
-    : _buf(new char [sz]), _bufsz(sz), _head(0), _tail(0),
-      _sum_bytes(0), _sum_lines(0)
+    : _buf(new char [sz]), _bufsz(sz)
     {}
 
+    Buf() = delete;
     ~Buf() { delete [] _buf; }
 
     Index head() const { return Index(_head, this); }
@@ -239,9 +239,9 @@ public:
     Buf &operator = (Buf const &) = delete;
     char *_buf;
     int _bufsz;
-    int _head, _tail;
+    int _head = 0, _tail = 0;
     std::vector<int> break_points;
-    unsigned long _sum_bytes, _sum_lines;
+    unsigned long _sum_bytes = 0, _sum_lines = 0;
   };
 
   struct Equal_key
@@ -282,6 +282,7 @@ public:
     }
   };
 
+  Client() = delete;
   Client(std::string const &tag, int color, int rsz, int wsz, Key key);
 
   virtual ~Client()
@@ -326,16 +327,16 @@ public:
 
   void cooked_write(const char *buf, long size = -1) throw();
 
-  int idx;
+  int idx = 0;
 
 private:
   int _col;
   std::string _tag;
-  bool _p;
-  bool _keep;
-  bool _timestamp;
-  bool _new_line;
-  bool _dead;
+  bool _p = false;
+  bool _keep = false;
+  bool _timestamp = false;
+  bool _new_line = true;
+  bool _dead = false;
   Key _key;
 
   Buf _wb, _rb;
@@ -345,5 +346,5 @@ private:
 protected:
   l4_vcon_attr_t _attr;
 
-  Output_mux *_output;
+  Output_mux *_output = nullptr;
 };
