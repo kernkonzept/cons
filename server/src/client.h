@@ -13,6 +13,8 @@
 
 #include <l4/cxx/hlist>
 #include <l4/sys/vcon>
+#include <l4/sys/cxx/ipc_server_loop>
+#include <l4/cxx/ipc_timeout_queue>
 
 #include "output_mux.h"
 
@@ -20,6 +22,20 @@
 #include <l4/cxx/string>
 
 #include <vector>
+
+template<typename Client>
+class Client_timeout : public L4::Ipc_svr::Timeout_queue::Timeout
+{
+public:
+  Client_timeout(Client *client)
+  : _client(client)
+  {}
+
+  void expired() override;
+
+private:
+  Client *_client;
+};
 
 class Client : public cxx::H_list_item
 {
@@ -246,6 +262,8 @@ public:
     unsigned long _sum_bytes = 0, _sum_lines = 0;
   };
 
+  void timeout_expired();
+
   struct Equal_key
   {
     Client::Key k;
@@ -285,7 +303,9 @@ public:
   };
 
   Client() = delete;
-  Client(std::string const &tag, int color, int rsz, int wsz, Key key);
+  Client(std::string const &tag, int color, int rsz, int wsz, Key key,
+         bool line_buffering, unsigned line_buffering_ms,
+         L4::Ipc_svr::Server_iface *sif);
 
   virtual ~Client()
   {
@@ -339,6 +359,8 @@ private:
   bool _timestamp = false;
   bool _new_line = true;
   bool _dead = false;
+  bool _line_buffering = false;
+  unsigned _line_buffering_ms = 50;
   Key _key;
 
   Buf _wb, _rb;
@@ -347,6 +369,9 @@ private:
 
   void print_timestamp();
   void do_output(Buf::Index until);
+
+  Client_timeout<Client> _timeout;
+  L4::Ipc_svr::Server_iface *_sif;
 
 protected:
   l4_vcon_attr_t _attr;

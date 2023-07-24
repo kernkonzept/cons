@@ -27,9 +27,11 @@ public:
   typedef L4Re::Util::Vcon_svr<Vcon_client> My_vcon_svr;
 
   Vcon_client(std::string const &name, int color, size_t bufsz, Key key,
-              L4Re::Util::Object_registry *)
+              bool line_buffering, unsigned line_buffering_ms,
+              L4Re::Util::Object_registry *, L4::Ipc_svr::Server_iface *sif)
   : Icu_svr(1, &_irq),
-    Client(name, color, 512, bufsz < 512 ? _dfl_obufsz : bufsz, key)
+    Client(name, color, 512, bufsz < 512 ? _dfl_obufsz : bufsz, key,
+           line_buffering, line_buffering_ms, sif)
   {}
 
   void vcon_write(const char *buffer, unsigned size) throw();

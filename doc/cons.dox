@@ -50,6 +50,18 @@
  *
  *     Keep the console buffer when a client disconnects.
  *
+ *   * `-l`, `--no-line-buffering`
+ *
+ *     By default, merge the client output to entire lines. If the client writes
+ *     characters without a final newline, the following client output is merged
+ *     with the current line content. Specifying this switch disables the line
+ *     buffered mode by default.
+ *
+ *   * `--line-buffering-ms <timeout>`
+ *
+ *     Timeout in milliseconds before buffered client output is written even
+ *     without a newline. Default value is 50.
+ *
  *   * `-n`, `--defaultname`
  *
  *     Default multiplexer capability to use. Default: `cons`.
@@ -77,8 +89,8 @@
  *
  *   * `backend_type`
  *
- *      The type of backend that should be created for the client. The type is a positive
- *      integer and currently the following types are supported:
+ *      The type of backend that should be created for the client. The type is a
+ *      positive integer and currently the following types are supported:
  *      * `L4.Proto.Log`: L4::Vcon client
  *      * `1`: Virtio console client
  *

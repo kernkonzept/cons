@@ -53,16 +53,25 @@ using L4Re::chksys;
 
 struct Config_opts
 {
+  // Show output of all consoles.
   bool default_show_all;
+  // By default, keep a console when a client disconnects.
   bool default_keep;
+  // By default, merge client write requests to a single request containing an
+  // entire line (until a newline is detected).
+  bool default_line_buffering = true;
+  // In line-buffered mode, timeout for write the client output even if no
+  // newline was detected.
+  unsigned default_line_buffering_ms = 50;
+  // By default, show time stamps for all consoles.
   bool default_timestamp;
+  // Currently unused.
   std::string auto_connect_console;
 };
 
 static Config_opts config;
 
-
-static L4::Server<L4Re::Util::Br_manager_hooks> server;
+static L4::Server<L4Re::Util::Br_manager_timeout_hooks> server;
 static Registry registry(&server);
 
 class My_mux : public Mux_i, public cxx::H_list_item
@@ -92,8 +101,8 @@ public:
   bool collected() { return false; }
 
   template< typename CLI >
-  int create(cxx::String const &name, int color, CLI **,
-             size_t bufsz, Client::Key key);
+  int create(cxx::String const &name, int color, CLI **, size_t bufsz,
+             Client::Key key, bool line_buffering, unsigned line_buffering_ms);
   int op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
                 l4_mword_t proto, L4::Ipc::Varg_list_ref args);
 
@@ -134,8 +143,8 @@ Cons_svr::sys_msg(char const *fmt, ...)
 
 template< typename CLI >
 int
-Cons_svr::create(cxx::String const &name, int color,
-                 CLI **vout, size_t bufsz, Client::Key key)
+Cons_svr::create(cxx::String const &name, int color, CLI **vout, size_t bufsz,
+                 Client::Key key, bool line_buffering, unsigned line_buffering_ms)
 {
   typedef Controller::Client_iter Client_iter;
   Client_iter c = std::find_if(_ctl.clients.begin(),
@@ -152,8 +161,8 @@ Cons_svr::create(cxx::String const &name, int color,
                    Client::Equal_tag(_name));
 
 
-  CLI *v = new CLI(std::string(_name.start(), _name.len()),
-                   color, bufsz, key, &registry);
+  CLI *v = new CLI(std::string(_name.start(), _name.len()), color, bufsz, key,
+                   line_buffering, line_buffering_ms, &registry, &server);
   if (!v)
     return -L4_ENOMEM;
 
@@ -235,6 +244,8 @@ Cons_svr::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
 
           bool show = config.default_show_all;
           bool keep = config.default_keep;
+          bool line_buffering = config.default_line_buffering;
+          unsigned line_buffering_ms = config.default_line_buffering_ms;
           bool timestamp = config.default_timestamp;
           Client::Key key;
           size_t bufsz = 0;
@@ -254,6 +265,12 @@ Cons_svr::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
                     keep = true;
                   else if (cs == "no-keep")
                     keep = false;
+                  else if (cs == "line-buffering")
+                    line_buffering = true;
+                  else if (cs == "no-line-buffering")
+                    line_buffering = false;
+                  else if (cxx::String::Index t = cs.starts_with("line-buffered-ms="))
+                    cs.substr(t).from_dec(&line_buffering_ms);
                   else if (cs == "timestamp")
                     timestamp = true;
                   else if (cs == "no-timestamp")
@@ -270,7 +287,8 @@ Cons_svr::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
           if (proto == 1)
             {
               Virtio_cons *_v;
-              if (int r = create(n, color, &_v, bufsz, key))
+              if (int r = create(n, color, &_v, bufsz, key,
+                                 line_buffering, line_buffering_ms))
                 return r;
               v = _v;
               v_cap = _v->obj_cap();
@@ -278,7 +296,8 @@ Cons_svr::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
           else
             {
               Vcon_client *_v;
-              if (int r = create(n, color, &_v, bufsz, key))
+              if (int r = create(n, color, &_v, bufsz, key,
+                                 line_buffering, line_buffering_ms))
                 return r;
               v = _v;
               v_cap = _v->obj_cap();
@@ -321,6 +340,8 @@ int main(int argc, char const *argv[])
     OPT_MUX = 'm',
     OPT_FE = 'f',
     OPT_KEEP = 'k',
+    OPT_NO_LINE_BUFFERING = 'l',
+    OPT_LINE_BUFFERING_MS = 1,
     OPT_TIMESTAMP = 't',
     OPT_AUTOCONNECT = 'c',
     OPT_DEFAULT_NAME = 'n',
@@ -329,14 +350,16 @@ int main(int argc, char const *argv[])
 
   static option opts[] =
   {
-    { "show-all",       no_argument,       0, OPT_SHOW_ALL },
-    { "mux",            required_argument, 0, OPT_MUX },
-    { "frontend",       required_argument, 0, OPT_FE },
-    { "keep",           no_argument,       0, OPT_KEEP },
-    { "timestamp",      no_argument,       0, OPT_TIMESTAMP },
-    { "autoconnect",    required_argument, 0, OPT_AUTOCONNECT },
-    { "defaultname",    required_argument, 0, OPT_DEFAULT_NAME },
-    { "defaultbufsize", required_argument, 0, OPT_DEFAULT_BUFSIZE },
+    { "show-all",          no_argument,       0, OPT_SHOW_ALL },
+    { "mux",               required_argument, 0, OPT_MUX },
+    { "frontend",          required_argument, 0, OPT_FE },
+    { "keep",              no_argument,       0, OPT_KEEP },
+    { "no-line-buffering", no_argument,       0, OPT_NO_LINE_BUFFERING },
+    { "line-buffering-ms", required_argument, 0, OPT_LINE_BUFFERING_MS },
+    { "timestamp",         no_argument,       0, OPT_TIMESTAMP },
+    { "autoconnect",       required_argument, 0, OPT_AUTOCONNECT },
+    { "defaultname",       required_argument, 0, OPT_DEFAULT_NAME },
+    { "defaultbufsize",    required_argument, 0, OPT_DEFAULT_BUFSIZE },
     { 0, 0, 0, 0 },
   };
 
@@ -412,6 +435,12 @@ int main(int argc, char const *argv[])
           break;
         case OPT_DEFAULT_BUFSIZE:
           Vcon_client::default_obuf_size(atoi(optarg));
+          break;
+        case OPT_NO_LINE_BUFFERING:
+          config.default_line_buffering = false;
+          break;
+        case OPT_LINE_BUFFERING_MS:
+          config.default_line_buffering_ms = atoi(optarg);
           break;
         }
     }
