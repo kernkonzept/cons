@@ -129,7 +129,7 @@ private:
   void clear_seq_print(bool erase);
   bool inject_to_read_buffer(char c);
 
-  void do_client_output(Client *v, int taillines, bool add_nl);
+  void do_client_output(Client const *v, int taillines, bool add_nl);
 
   // Sink::write
   void write(char const *buf, unsigned size) const

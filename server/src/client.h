@@ -124,7 +124,7 @@ public:
       return _tail == _head;
     }
 
-    bool is_next_break(int offset)
+    bool is_next_break(int offset) const
     {
       return    break_points.size()
              && ((_head + offset) % _bufsz) == break_points[0];
@@ -216,7 +216,7 @@ public:
       return p;
     }
 
-    int distance()
+    int distance() const
     {
       if (_head >= _tail)
         return _head - _tail;

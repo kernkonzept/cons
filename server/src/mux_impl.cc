@@ -80,7 +80,7 @@ Mux_i::Mux_i(Controller *ctl, char const *name)
 }
 
 void
-Mux_i::do_client_output(Client *v, int taillines, bool add_nl)
+Mux_i::do_client_output(Client const *v, int taillines, bool add_nl)
 {
   Client::Buf const *b = v->wbuf();
   Client::Buf::Index p = b->tail();
