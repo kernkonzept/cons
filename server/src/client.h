@@ -216,11 +216,13 @@ public:
       return p;
     }
 
-    int distance() const
+    int distance() const { return distance(tail(), head()); }
+
+    int distance(Index start, Index end) const
     {
-      if (_head >= _tail)
-        return _head - _tail;
-      return (_head + _bufsz) - _tail;
+      if (end.i >= start.i)
+        return end.i - start.i;
+      return (end.i + _bufsz) - start.i;
     }
 
     void clear(int l)
@@ -341,7 +343,10 @@ private:
 
   Buf _wb, _rb;
 
+  Buf::Index _first_unwritten;
+
   void print_timestamp();
+  void do_output(Buf::Index until);
 
 protected:
   l4_vcon_attr_t _attr;
