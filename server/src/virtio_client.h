@@ -82,8 +82,9 @@ public:
     L4Re::chksys(server_iface()->realloc_rcv_cap(0));
   }
 
-  void trigger_driver_config_irq() const override
+  void trigger_driver_config_irq() override
   {
+    _dev_config.add_irq_status(L4VIRTIO_IRQ_STATUS_CONFIG);
     kick_guest_irq->trigger();
   }
 
@@ -129,9 +130,7 @@ public:
     if (queue->no_notify_guest())
       return;
 
-    // we do not care about this anywhere, so skip
-    // _device_config->irq_status |= 1;
-
+    _dev_config.add_irq_status(L4VIRTIO_IRQ_STATUS_VRING);
     kick_guest_irq->trigger();
   }
 
