@@ -232,6 +232,8 @@ public:
       return p;
     }
 
+    bool empty() const { return head() == tail(); }
+
     int distance() const { return distance(tail(), head()); }
 
     int distance(Index start, Index end) const

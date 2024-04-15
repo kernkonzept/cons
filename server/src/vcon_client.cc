@@ -43,8 +43,11 @@ Vcon_client::vcon_read(char *buf, unsigned size) throw()
   rbuf()->clear(i);
 
   if (   i == r
-      && (r < size || !rbuf()->distance()))
+      && (r < size || rbuf()->empty()))
     status |= L4_VCON_READ_STAT_DONE;
+
+  if (!rbuf()->empty())
+    i = size + 1;
 
   return i | status;
 }
