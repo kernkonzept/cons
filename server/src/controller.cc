@@ -175,7 +175,7 @@ Controller::complete(Mux *mux, unsigned cur_pos, Input_buf *ibuf)
   int num_args = split_input(ibuf->string(), args, Max_args, false);
 
   char outbuf[100];
-  cxx::String outarg = cxx::String(outbuf, sizeof(outbuf));
+  cxx::String outarg(outbuf, sizeof(outbuf));
 
   int arg_to_complete;
   int cnt;

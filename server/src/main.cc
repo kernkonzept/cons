@@ -210,8 +210,7 @@ Cons_svr::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
           int color;
           if (col.is_of<char const *>())
             {
-              cxx::String cs = cxx::String(col.value<char const*>(),
-                                           col.length() - 1);
+              cxx::String cs(col.value<char const*>(), col.length() - 1);
 
               int c = 7, bright = 0;
               if (!cs.empty())
@@ -254,8 +253,7 @@ Cons_svr::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
             {
               if (opts.is_of<char const *>())
                 {
-                  cxx::String cs = cxx::String(opts.value<char const *>(),
-                                               opts.length() - 1);
+                  cxx::String cs(opts.value<char const *>(), opts.length() - 1);
 
                   if (cs == "hide")
                     show = false;
