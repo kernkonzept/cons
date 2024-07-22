@@ -101,7 +101,7 @@ public:
   bool collected() { return false; }
 
   template< typename CLI >
-  int create(cxx::String const &name, int color, CLI **, size_t bufsz,
+  int create(std::string const &tag, int color, CLI **, size_t bufsz,
              Client::Key key, bool line_buffering, unsigned line_buffering_ms);
   int op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
                 l4_mword_t proto, L4::Ipc::Varg_list_ref args);
@@ -143,7 +143,7 @@ Cons_svr::sys_msg(char const *fmt, ...)
 
 template< typename CLI >
 int
-Cons_svr::create(cxx::String const &name, int color, CLI **vout, size_t bufsz,
+Cons_svr::create(std::string const &tag, int color, CLI **vout, size_t bufsz,
                  Client::Key key, bool line_buffering, unsigned line_buffering_ms)
 {
   typedef Controller::Client_iter Client_iter;
@@ -153,16 +153,14 @@ Cons_svr::create(cxx::String const &name, int color, CLI **vout, size_t bufsz,
   if (c != _ctl.clients.end())
     sys_msg("WARNING: multiple clients with key '%c'\n", key.v());
 
-  cxx::String _name = name;
-  if (_name.len() <= 0)
-    _name = "<noname>";
+  std::string name = tag.length() > 0 ? tag : "<noname>";
 
   c = std::find_if(_ctl.clients.begin(), Client_iter(_ctl.clients.end()),
-                   Client::Equal_tag(_name));
+                   Client::Equal_tag(cxx::String(name.data(), name.length())));
 
 
-  CLI *v = new CLI(std::string(_name.start(), _name.len()), color, bufsz, key,
-                   line_buffering, line_buffering_ms, &registry, &server);
+  CLI *v = new CLI(name, color, bufsz, key, line_buffering, line_buffering_ms,
+                   &registry, &server);
   if (!v)
     return -L4_ENOMEM;
 
@@ -174,8 +172,7 @@ Cons_svr::create(cxx::String const &name, int color, CLI **vout, size_t bufsz,
 
   if (c != _ctl.clients.end())
     {
-      sys_msg("WARNING: multiple clients with tag '%.*s'\n",
-              _name.len(), _name.start());
+      sys_msg("WARNING: multiple clients with tag '%s'\n", name.c_str());
       v->idx = c->idx + 1;
       _ctl.clients.insert_before(v, c);
     }
@@ -237,9 +234,8 @@ Cons_svr::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
           else
             color = 7;
 
-          char n[tag.length() + 1];
-          memcpy(n, tag.value<char const*>(), tag.length());
-          n[sizeof(n) - 1] = 0;
+          // length() > 0 for a valid string parameter
+          std::string ts(tag.value<char const*>(), tag.length() - 1);
 
           bool show = config.default_show_all;
           bool keep = config.default_keep;
@@ -285,7 +281,7 @@ Cons_svr::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
           if (proto == 1)
             {
               Virtio_cons *_v;
-              if (int r = create(n, color, &_v, bufsz, key,
+              if (int r = create(ts, color, &_v, bufsz, key,
                                  line_buffering, line_buffering_ms))
                 return r;
               v = _v;
@@ -294,7 +290,7 @@ Cons_svr::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
           else
             {
               Vcon_client *_v;
-              if (int r = create(n, color, &_v, bufsz, key,
+              if (int r = create(ts, color, &_v, bufsz, key,
                                  line_buffering, line_buffering_ms))
                 return r;
               v = _v;
@@ -311,7 +307,7 @@ Cons_svr::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
 
           for (Mux_iter i = _muxe.begin(); i != _muxe.end(); ++i)
             {
-              if (i->is_auto_connect_console(n))
+              if (i->is_auto_connect_console(ts))
                 {
                   i->connect(v);
                   break;
