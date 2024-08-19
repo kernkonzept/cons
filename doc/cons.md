@@ -21,6 +21,24 @@ the L4.Env.log capability is used.
 For clients cons implements the L4::Vcon and the Virtio console interface.
 The supported frontends is limited to L4::Vcon only.
 
+## Starting the service
+
+The cons server can be started with Lua like this:
+
+    local log_server = L4.default_loader:new_channel()
+    L4.default_loader:start({
+      caps = {
+        cons = log_server:svr(),
+        fe = L4.Env.log,
+      },
+    },
+    "rom/cons -m l4re -f fe")
+
+First an IPC gate (`log_server`) is created which is used between the cons
+server and a client to request a new session. The server side is assigned to the
+mandatory `cons` capability of cons. The `fe` capability points to a L4::Vcon
+capable output.
+
 ## Command Line Options
 
 cons accepts the following command line switches:
