@@ -60,7 +60,7 @@ private:
 class Client_name_iter : public String_set_iter
 {
 public:
-  explicit Client_name_iter(cxx::H_list<Client> const *c)
+  explicit Client_name_iter(Controller::Client_list const *c)
   : _client(c->begin()), _e(c->end())
   {}
 
@@ -81,7 +81,7 @@ public:
   { return _client != _e; }
 
 private:
-  cxx::H_list<Client>::Const_iterator _client, _e;
+  Controller::Client_const_iter _client, _e;
 };
 }
 

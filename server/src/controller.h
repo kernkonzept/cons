@@ -97,16 +97,16 @@ private:
 
   static Cmd _cmds[];
 
-  typedef cxx::H_list<Client> Client_list;
-  typedef Client_list::Const_iterator Client_const_iter;
-
   struct Grep_lineinfo
   {
     explicit Grep_lineinfo(Client::Buf::Index l) : line(l), flags(0) {}
     Client::Buf::Index line;
     unsigned           flags;
   };
+
 public:
+  typedef cxx::H_list<Client> Client_list;
+  typedef Client_list::Const_iterator Client_const_iter;
   typedef Client_list::Iterator Client_iter;
 
   Client_list clients;
