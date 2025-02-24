@@ -105,18 +105,10 @@ private:
   };
 
 public:
-  typedef cxx::H_list<Client> Client_list;
-  typedef Client_list::Const_iterator Client_const_iter;
-  typedef Client_list::Iterator Client_iter;
+  typedef Client *Client_ptr;
+  typedef std::vector<Client_ptr> Client_list;
+  typedef Client_list::const_iterator Client_const_iter;
+  typedef Client_list::iterator Client_iter;
 
   Client_list clients;
-};
-
-namespace std
-{
-  template<>
-  struct iterator_traits<Controller::Client_iter>
-  {
-    typedef forward_iterator_tag iterator_category;
-  };
 };

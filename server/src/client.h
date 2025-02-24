@@ -11,7 +11,6 @@
 
 #include <string>
 
-#include <l4/cxx/hlist>
 #include <l4/sys/vcon>
 #include <l4/sys/cxx/ipc_server_loop>
 #include <l4/cxx/ipc_timeout_queue>
@@ -37,7 +36,7 @@ private:
   Client *_client;
 };
 
-class Client : public cxx::H_list_item
+class Client
 {
 public:
   class Key

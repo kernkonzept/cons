@@ -352,7 +352,7 @@ Mux_i::handle_cmd_seq_global(const char k)
                 }
               else
                 {
-                  if (i->output_mux() == this && i != c)
+                  if (i->output_mux() == this && &*i != c)
                     hide(i);
                 }
             }
@@ -371,7 +371,7 @@ Mux_i::handle_cmd_seq_global(const char k)
                 {
                   disconnect(_connected, false);
                   printf("------------- Connecting to '%s' -------------\n",
-                         c->tag().c_str());
+                         (*c)->tag().c_str());
                   connect(*c);
                   return true;
                 }

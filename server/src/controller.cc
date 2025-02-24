@@ -66,11 +66,11 @@ public:
 
   cxx::String value(cxx::String buf) const
   {
-    if (_client->idx == 0)
-      return _client->tag().c_str();
+    if ((*_client)->idx == 0)
+      return (*_client)->tag().c_str();
 
     snprintf((char *)buf.start(), buf.len(), "%s:%d",
-             _client->tag().c_str(), _client->idx);
+             (*_client)->tag().c_str(), (*_client)->idx);
     return buf;
   }
 
@@ -613,7 +613,7 @@ Controller::cmd_grep(Mux *mux, int argc, Arg *a)
 
   for (auto const v : clients)
     {
-      if (given_client && v != given_client)
+      if (given_client && &*v != given_client)
         continue;
 
       Client::Buf const *b = v->wbuf();

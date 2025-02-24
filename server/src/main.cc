@@ -173,11 +173,11 @@ Cons_svr::create(std::string const &tag, int color, CLI **vout, size_t bufsz,
   if (c != _ctl.clients.end())
     {
       sys_msg("WARNING: multiple clients with tag '%s'\n", name.c_str());
-      v->idx = c->idx + 1;
-      _ctl.clients.insert_before(v, c);
+      v->idx = (*c)->idx + 1;
+      _ctl.clients.push_back(v);
     }
   else
-    _ctl.clients.push_front(v);
+    _ctl.clients.push_back(v);
 
   sys_msg("Created vcon channel: %s [%lx]\n",
           v->tag().c_str(), v->obj_cap().cap());
