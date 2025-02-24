@@ -14,6 +14,8 @@
 #include <algorithm>
 #include <vector>
 
+#include "globmatch.h"
+
 Controller::Cmd Controller::_cmds[] =
     {
       { "c",       0,                                     &Controller::cmd_connect,         &Controller::complete_console_name_1 },
@@ -284,11 +286,40 @@ Controller::cmd_list(Mux *mux, int argc, Arg *args)
 {
   bool long_mode = false;
 
-  if (argc > 1 && args[1].a.len() > 1
-               && args[1].a[0] == '-' && args[1].a[1] == 'l')
-    long_mode = true;
+  std::vector<std::string> patterns;
 
-  for (auto i : clients)
+  for (int i = 1; i < argc; ++i)
+    {
+      if (args[i].a.len() == 2
+          && args[i].a[0] == '-' && args[i].a[1] == 'l')
+        long_mode = true;
+
+      if (args[i].a.len() > 0 && args[i].a[0] != '-')
+        patterns.push_back(std::string(args[i].a.start(), args[i].a.len()));
+    }
+
+  auto sorted = clients;
+  std::sort(sorted.begin(), sorted.end(),
+            [](const Client_ptr a, const Client_ptr b) {
+              return a->tag().compare(b->tag()) < 0;
+            } );
+
+  Client_list output_list;
+  if (patterns.empty())
+    output_list = sorted;
+  else
+    for (auto p : patterns)
+      {
+        Client_list plist;
+        for (auto c : sorted)
+          if (glob::match(c->tag(), p))
+            plist.push_back(c);
+
+        for (auto q : plist)
+          output_list.push_back(q);
+      }
+
+  for (auto i : output_list)
     {
       mux->printf("%14s%s%.0d %c%c%c [%8s] out:%5ld/%6ld in:%5ld/%5ld%s",
                   i->tag().c_str(), i->idx ? ":" : "", i->idx,
