@@ -343,18 +343,17 @@ Mux_i::handle_cmd_seq_global(const char k)
     case 's':
         {
           Client *c = is_connected() ? _connected : 0;
-          for (Controller::Client_iter i = _ctl->clients.begin();
-               i != _ctl->clients.end(); ++i)
+          for (auto const i : _ctl->clients)
             {
               if (k == 's')
                 {
                   if (!i->output_mux())
-                    show(*i);
+                    show(i);
                 }
               else
                 {
-                  if (i->output_mux() == this && *i != c)
-                    hide(*i);
+                  if (i->output_mux() == this && i != c)
+                    hide(i);
                 }
             }
         }

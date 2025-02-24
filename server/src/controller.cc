@@ -265,7 +265,7 @@ Controller::cmd_help(Mux *mux, int, Arg *)
   mux->printf("   Ctrl-E s     - Show all output\n");
 
   bool first = true;
-  for (Client_iter i = clients.begin(); i != clients.end(); ++i)
+  for (auto const i : clients)
     if (!i->key().is_nil())
       {
         if (first)
@@ -288,7 +288,7 @@ Controller::cmd_list(Mux *mux, int argc, Arg *args)
                && args[1].a[0] == '-' && args[1].a[1] == 'l')
     long_mode = true;
 
-  for (Client_iter i = clients.begin(); i != clients.end(); ++i)
+  for (auto i : clients)
     {
       mux->printf("%14s%s%.0d %c%c%c [%8s] out:%5ld/%6ld in:%5ld/%5ld%s",
                   i->tag().c_str(), i->idx ? ":" : "", i->idx,
@@ -465,18 +465,18 @@ int
 Controller::cmd_showall(Mux *mux, int, Arg *)
 {
   // show all not yet displayed clients on /mux/
-  for (Client_iter i = clients.begin(); i != clients.end(); ++i)
+  for (auto const i : clients)
     if (!i->output_mux())
-      mux->show(*i);
+      mux->show(i);
   return 0;
 }
 
 int
 Controller::cmd_hideall(Mux *mux, int, Arg *)
 {
-  for (Client_iter i = clients.begin(); i != clients.end(); ++i)
+  for (auto const i : clients)
     if (i->output_mux() == mux)
-      mux->hide(*i);
+      mux->hide(i);
   return 0;
 }
 
@@ -611,9 +611,9 @@ Controller::cmd_grep(Mux *mux, int argc, Arg *a)
     for (int i = 0; i < pattern.len(); ++i)
       const_cast<char &>(pattern[i]) = tolower(pattern[i]);
 
-  for (Client_const_iter v = clients.begin(); v != clients.end(); ++v)
+  for (auto const v : clients)
     {
-      if (given_client && *v != given_client)
+      if (given_client && v != given_client)
         continue;
 
       Client::Buf const *b = v->wbuf();
