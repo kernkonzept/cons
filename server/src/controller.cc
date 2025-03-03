@@ -311,15 +311,15 @@ Controller::cmd_list(Mux *mux, int argc, Arg *args)
     for (auto p : patterns)
       {
         Client_list plist;
-        for (auto c : sorted)
+        for (auto const c : sorted)
           if (glob::match(c->tag(), p))
             plist.push_back(c);
 
-        for (auto q : plist)
+        for (auto const q : plist)
           output_list.push_back(q);
       }
 
-  for (auto i : output_list)
+  for (auto const i : output_list)
     {
       mux->printf("%14s%s%.0d %c%c%c [%8s] out:%5ld/%6ld in:%5ld/%5ld%s",
                   i->tag().c_str(), i->idx ? ":" : "", i->idx,
