@@ -350,6 +350,9 @@ public:
 
   void cooked_write(const char *buf, long size = -1) throw();
 
+  void skip_unwritten()
+  { _first_unwritten = wbuf()->head(); }
+
   int idx = 0;
 
 private:

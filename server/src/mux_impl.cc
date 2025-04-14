@@ -253,6 +253,7 @@ Mux_i::vsys_msg(const char *fmt, va_list args)
 void
 Mux_i::connect(Client *client)
 {
+  client->skip_unwritten();
   tail(client, 10, false);
   _last_output_client = client;
 
@@ -287,6 +288,7 @@ Mux_i::show(Client *c)
   if (m)
     m->disconnect(c);
 
+  c->skip_unwritten();
   c->output_mux(this);
 }
 
