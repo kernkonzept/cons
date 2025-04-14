@@ -47,11 +47,21 @@ cons accepts the following command line switches:
 
   Initially show output from all clients.
 
+* `-B <size>`, `--defaultbufsize <size>`
+
+  Default buffer size per client in bytes. Default: 40960
+
 * `-c <client>`, `--autoconnect <client>`
 
   Automatically connect to the client with the given name.
   That means that output of this client will be visible and
   input will be routed to it.
+
+* `-f <cap>`, `--frontend <cap>`
+
+  Set the frontend for the current multiplexer. Output for the multiplexer
+  is then sent to the capability with the given name. The server connected
+  to the capability needs to understand the L4::Vcon protocol.
 
 * `-k`, `--keep`
 
@@ -69,29 +79,22 @@ cons accepts the following command line switches:
   Timeout in milliseconds before buffered client output is written even
   without a newline. Default value is 50.
 
-* `-n`, `--defaultname`
-
-  Default multiplexer capability to use. Default: `cons`.
-
-* `-B <size>`, `--defaultbufsize <size>`
-
-  Default buffer size per client in bytes. Default: 40960
-
 * `-m <prompt name>`, `--mux <prompt name>`
 
   Add a new multiplexer named \<prompt name\>. This is necessary if output
   should be sent to different frontends.
 
-* `-f <cap>`, `--frontend <cap>`
+* `-n`, `--defaultname`
 
-    Set the frontend for the current multiplexer. Output for the multiplexer
-    is then sent to the capability with the given name. The server connected
-    to the capability needs to understand the L4::Vcon protocol.
+  Default multiplexer capability to use. Default: `cons`.
 
+* `-t`, `--timestamp`
+
+  Prefix the output with timestamps.
 
 ## Connecting a client
 
-     create(backend_type, ["client_name"], ["color"], ["options"])
+     create(backend_type, ["client_name"], ["color"], ["option"] [,"option"] ...)
 
 * `backend_type`
 
@@ -99,3 +102,30 @@ cons accepts the following command line switches:
    positive integer and currently the following types are supported:
    * `L4.Proto.Log`: L4::Vcon client
    * `1`: Virtio console client
+
+cons accepts the following per-client options:
+
+* `bufsz=n`
+
+  Use a buffer of `n` bytes for this client, deviating from the default
+  buffer size.
+
+* `keep` / `no-keep`
+
+  The console buffer is kept / thrown away when the client disconnects.
+
+* `key=<key>`
+
+  Assign `<key>` as keyboard shortcut to this client.
+
+* `line-buffering` / `no-linux-buffering`
+
+  Line buffering is enabled / disabled for this client.
+
+* `show` / `hide`
+
+  Output from this client is initially shown / hidden.
+
+* `timestamp` / `no-timestamp`
+
+  Do / do not prefix the output of this client with timestamps.
