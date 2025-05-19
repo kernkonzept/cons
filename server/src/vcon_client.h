@@ -10,6 +10,7 @@
 #pragma once
 
 #include "client.h"
+#include "controller.h"
 #include "server.h"
 
 #include <l4/re/util/icu_svr>
@@ -28,10 +29,11 @@ public:
 
   Vcon_client(std::string const &name, int color, size_t bufsz, Key key,
               bool line_buffering, unsigned line_buffering_ms,
-              L4Re::Util::Object_registry *, L4::Ipc_svr::Server_iface *sif)
+              L4Re::Util::Object_registry *, L4::Ipc_svr::Server_iface *sif,
+              Controller *ctl)
   : Icu_svr(1, &_irq),
     Client(name, color, 512, bufsz < 512 ? _dfl_obufsz : bufsz, key,
-           line_buffering, line_buffering_ms, sif)
+           line_buffering, line_buffering_ms, sif, ctl)
   {}
 
   void vcon_write(const char *buffer, unsigned size) throw();

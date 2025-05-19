@@ -160,7 +160,7 @@ Cons_svr::create(std::string const &tag, int color, CLI **vout, size_t bufsz,
 
 
   CLI *v = new CLI(name, color, bufsz, key, line_buffering, line_buffering_ms,
-                   &registry, &server);
+                   &registry, &server, &_ctl);
   if (!v)
     return -L4_ENOMEM;
 

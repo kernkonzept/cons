@@ -111,4 +111,6 @@ public:
   typedef Client_list::iterator Client_iter;
 
   Client_list clients;
+
+  void remove_client(Client_ptr client);
 };

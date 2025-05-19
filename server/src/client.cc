@@ -8,6 +8,7 @@
  * Please see the COPYING-GPL-2 file for details.
  */
 #include "client.h"
+#include "controller.h"
 
 #include <l4/re/env.h>
 #include <l4/sys/kip.h>
@@ -23,14 +24,23 @@ Client_timeout<Client>::expired()
 
 Client::Client(std::string const &tag, int color, int rsz, int wsz, Key key,
                bool line_buffering, unsigned line_buffering_ms,
-               L4::Ipc_svr::Server_iface *sif)
+               L4::Ipc_svr::Server_iface *sif, Controller *ctl)
 : _col(color), _tag(tag), _line_buffering(line_buffering),
   _line_buffering_ms(line_buffering_ms), _key(key), _wb(wsz), _rb(rsz),
-  _first_unwritten(_wb.head()), _timeout(this), _sif(sif)
+  _first_unwritten(_wb.head()), _timeout(this), _sif(sif), _ctl(ctl)
 {
   _attr.i_flags = L4_VCON_ICRNL;
   _attr.o_flags = L4_VCON_ONLRET | L4_VCON_ONLCR;
   _attr.l_flags = L4_VCON_ECHO;
+}
+
+Client::~Client()
+{
+  if (output_mux())
+    output_mux()->disconnect(this);
+
+  if (_ctl)
+    _ctl->remove_client(this);
 }
 
 bool

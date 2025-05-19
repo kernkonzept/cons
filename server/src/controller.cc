@@ -87,6 +87,17 @@ private:
 };
 }
 
+void
+Controller::remove_client(Client_ptr client)
+{
+  for (auto it = clients.begin(); it != clients.end(); ++it)
+    if (client == *it)
+      {
+        clients.erase(it);
+        break;
+      }
+}
+
 Client *
 Controller::get_client(Mux *mux, int argc, int idx, Arg *a)
 {

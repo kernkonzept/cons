@@ -66,7 +66,8 @@ namespace {
 class Mux_client : public Client
 {
 public:
-  Mux_client(Mux *mux) : Client("CONS", 0, 512, 512, Key(), false, 0, nullptr)
+  Mux_client(Mux *mux) : Client("CONS", 0, 512, 512, Key(), false, 0, nullptr,
+                                nullptr)
   { output_mux(mux); }
   void trigger() const {}
 };

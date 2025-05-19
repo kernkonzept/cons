@@ -22,6 +22,8 @@
 
 #include <vector>
 
+class Controller;
+
 template<typename Client>
 class Client_timeout : public L4::Ipc_svr::Timeout_queue::Timeout
 {
@@ -306,13 +308,9 @@ public:
   Client() = delete;
   Client(std::string const &tag, int color, int rsz, int wsz, Key key,
          bool line_buffering, unsigned line_buffering_ms,
-         L4::Ipc_svr::Server_iface *sif);
+         L4::Ipc_svr::Server_iface *sif, Controller *ctl);
 
-  virtual ~Client()
-  {
-    if (output_mux())
-      output_mux()->disconnect(this);
-  }
+  virtual ~Client();
 
   bool collected();
   bool keep() const { return _keep; }
@@ -376,6 +374,8 @@ private:
 
   Client_timeout<Client> _timeout;
   L4::Ipc_svr::Server_iface *_sif;
+
+  Controller *_ctl;
 
 protected:
   l4_vcon_attr_t _attr;
