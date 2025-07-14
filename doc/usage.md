@@ -1,25 +1,34 @@
 # Cons, the Console Multiplexer {#l4re_servers_cons}
 
-`cons` is an interactive multiplexer for console in- and output. It buffers the
+`cons` is an interactive multiplexer for console input and output. It buffers the
 output from different %L4 clients and allows to switch between them to redirect
 input.
 
 ## Multiplexers and Frontends
 
-cons is able to connect multiple clients with multiple in/output
-servers.
+cons is able to connect multiple clients to multiple console I/O servers. All
+clients are connected to all configured multiplexers
 
-Clients are handled by a _multiplexer_. Each multiplexer publishes
-a server capability that allows to create new client connections. The
-default multiplexer is normally known under the `cons` capability.
+Multiplexers and frontends come in pairs where the actual I/O is handled by the
+frontend. From the point-of-view of cons, a frontend consists of an IPC channel
+to a server that speaks an appropriate server protocol. By default the
+L4.Env.log capability is used. Only frontends that speak the L4::Vcon protocol
+are supported.
 
-Actual in/output is handled by separate frontends. From the
-point-of-view of cons, a frontend consists of an IPC channel to
-a server that speaks an appropriate server protocol. By default
-the L4.Env.log capability is used.
+A multiplexer handles and routes the I/O of each client to and from its
+respective frontend.
 
-For clients cons implements the L4::Vcon and the Virtio console interface.
-The supported frontends is limited to L4::Vcon only.
+Each client's console settings (e.g. color, visibility) apply to all
+multiplexers and cannot be changed individually. A user can connect to all
+clients through all multiplexers. It is not possible to assign individual
+clients to distinct multiplexers.
+
+## Client sessions
+
+For clients cons implements the L4::Vcon and the Virtio console interface. A
+client session can be requested through a `create` call to cons' factory. cons
+binds its factory capability to the `cons` capability. See the example below on
+how this can be set up.
 
 ## Starting the service
 
@@ -29,15 +38,17 @@ The cons server can be started with Lua like this:
     L4.default_loader:start({
       caps = {
         cons = log_server:svr(),
-        fe = L4.Env.log,
       },
+      log = L4.Env.log,
     },
-    "rom/cons -m l4re -f fe")
+    "rom/cons")
 
 First an IPC gate (`log_server`) is created which is used between the cons
 server and a client to request a new session. The server side is assigned to the
-mandatory `cons` capability of cons. The `fe` capability points to a L4::Vcon
-capable output.
+mandatory `cons` capability of cons. This example explicitly assigns the
+kernel's log capability (`L4.Env.log`) to cons' `log` capability in order to
+allow cons to provide input and output for its clients. The default log factory
+(usually provided by `moe`) doesn't provide input capabilities.
 
 ## Command Line Options
 
@@ -60,8 +71,8 @@ cons accepts the following command line switches:
 * `-f <cap>`, `--frontend <cap>`
 
   Set the frontend for the current multiplexer. Output for the multiplexer
-  is then sent to the capability with the given name. The server connected
-  to the capability needs to understand the L4::Vcon protocol.
+  is then sent to the capability with the given name `<cap>`. The server
+  connected to the capability needs to understand the L4::Vcon protocol.
 
 * `-k`, `--keep`
 
@@ -81,12 +92,13 @@ cons accepts the following command line switches:
 
 * `-m <prompt name>`, `--mux <prompt name>`
 
-  Add a new multiplexer named \<prompt name\>. This is necessary if output
-  should be sent to different frontends.
+  Add a new multiplexer named `<prompt name>`. This is necessary if output
+  should be sent to different frontends. This option must be used in conjunction
+  with the `-f` frontend option
 
 * `-n`, `--defaultname`
 
-  Default multiplexer capability to use. Default: `cons`.
+  Default name for the multiplexer prompt. Default: `cons`.
 
 * `-t`, `--timestamp`
 
