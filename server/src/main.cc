@@ -375,7 +375,7 @@ int main(int argc, char const *argv[])
     {
       int optidx = 0;
       int c = getopt_long(argc, const_cast<char *const*>(argv),
-                          "am:f:kc:n:B:t", opts, &optidx);
+                          "am:f:klc:n:B:t", opts, &optidx);
       if (c == -1)
         break;
 
