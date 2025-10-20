@@ -153,9 +153,9 @@ Cons_svr::create(std::string const &tag, int color, CLI **vout, size_t bufsz,
 
   std::string name = tag.length() > 0 ? tag : "<noname>";
 
-  unsigned cnt =
-    std::count_if(_ctl.clients.begin(), _ctl.clients.end(),
-                  Client::Equal_tag(cxx::String(name.data(), name.length())));
+  auto it =
+    std::find_if(_ctl.clients.rbegin(), _ctl.clients.rend(),
+                 Client::Equal_tag(cxx::String(name.data(), name.length())));
 
   CLI *v = new CLI(name, color, bufsz, key, line_buffering, line_buffering_ms,
                    &registry, &server, &_ctl);
@@ -168,10 +168,10 @@ Cons_svr::create(std::string const &tag, int color, CLI **vout, size_t bufsz,
       return -L4_ENOMEM;
     }
 
-  if (cnt > 0)
+  if (it != _ctl.clients.rend())
     {
       sys_msg("WARNING: multiple clients with tag '%s'\n", name.c_str());
-      v->idx = cnt;
+      v->idx = (*it)->idx + 1;
       _ctl.clients.push_back(v);
     }
   else
