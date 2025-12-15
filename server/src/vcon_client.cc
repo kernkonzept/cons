@@ -21,8 +21,8 @@ Vcon_client::vcon_read(char *buf, unsigned const size) noexcept
   char const *str = 0;
   int const offset = 0;
   unsigned status = 0;
-  unsigned const strsz = rbuf()->get(offset, &str);
-  unsigned const copysz = cxx::min(strsz, size);
+  unsigned strsz = rbuf()->get(offset, &str);
+  unsigned copysz = cxx::min(strsz, size);
 
   if (rbuf()->is_next_break(offset))
     {
@@ -43,6 +43,31 @@ Vcon_client::vcon_read(char *buf, unsigned const size) noexcept
     }
 
   rbuf()->clear(i);
+
+  // in case the rbuf wrapped around, there might be more data to read.
+  if (   !rbuf()->empty() // rbuf wrapped, thus not empty
+      && !break_signal    // no break signal
+      && copysz < size)   // still room in the caller's buffer
+    {
+      // precondition: tail ptr incremented via clear();
+      strsz = rbuf()->get(offset, &str);
+      unsigned buf_left_sz = size - i;
+      copysz = std::min(strsz, buf_left_sz);
+
+      unsigned j = 0;
+      for (; j < copysz; ++j)
+        {
+          if (rbuf()->is_next_break(offset + j))
+            {
+              break_signal = true;
+              break;
+            }
+          buf[i+j] = str[j];
+        }
+
+      rbuf()->clear(j);
+      i += j; // sum up all copied bytes
+    }
 
   if (!break_signal)
     {
