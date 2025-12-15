@@ -7,6 +7,7 @@
 #include "vcon_client.h"
 
 #include <l4/sys/typeinfo_svr>
+#include <l4/cxx/minmax>
 
 unsigned Vcon_client::_dfl_obufsz = Vcon_client::Default_obuf_size;
 
@@ -17,12 +18,11 @@ Vcon_client::vcon_write(const char *buf, unsigned size) noexcept
 unsigned
 Vcon_client::vcon_read(char *buf, unsigned const size) noexcept
 {
-  char const *d = 0;
-  const int offset = 0;
+  char const *str = 0;
+  int const offset = 0;
   unsigned status = 0;
-  unsigned r = rbuf()->get(offset, &d);
-  if (r > size)
-    r = size;
+  unsigned const strsz = rbuf()->get(offset, &str);
+  unsigned const copysz = cxx::min(strsz, size);
 
   if (rbuf()->is_next_break(offset))
     {
@@ -32,14 +32,14 @@ Vcon_client::vcon_read(char *buf, unsigned const size) noexcept
 
   unsigned i = 0;
   bool break_signal = false;
-  for (; i < r; ++i)
+  for (; i < copysz; ++i)
     {
       if (rbuf()->is_next_break(offset + i))
         {
           break_signal = true;
           break;
         }
-      buf[i] = d[i];
+      buf[i] = str[i];
     }
 
   rbuf()->clear(i);
