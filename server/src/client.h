@@ -121,6 +121,15 @@ public:
 
     char operator [] (Index const &i) const { return _buf[i.i]; }
 
+    /**
+     * Write buffer content to passed object.
+     *
+     * \tparam O  Type implementing the `write()` function.
+     *
+     * \param s  Start marker in this buffer.
+     * \param e  Exclusive end marker in this buffer.
+     * \param o  Object to write to.
+     */
     template< typename O >
     int write(Index const &s, Index const &e, O *o) const
     {
@@ -198,6 +207,18 @@ public:
       return was_empty;
     }
 
+    /**
+     * Return the longest continuous number of bytes in the buffer. This is not
+     * a C-style string.
+     *
+     * \param      offset  Offset from current start of the buffer.
+     * \param[out] d       Character array without terminating NULL character.
+     *
+     * When the buffer wrapped around, the returned array ends at the end of
+     * the buffer.
+     *
+     * \retval Array length.
+     */
     int get(int offset, char const **d) const
     {
       if (offset < 0 || (unsigned)offset >= _sum_bytes)
