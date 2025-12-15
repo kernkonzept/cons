@@ -146,15 +146,15 @@ public:
 
     bool put_break()
     {
-      if (!break_points.size() || break_points.back() != _head)
+      if (break_points.empty() || break_points.back() != _head)
         break_points.push_back(_head);
 
-      return _tail == _head;
+      return empty();
     }
 
     bool is_next_break(int offset) const
     {
-      return    break_points.size()
+      return    !break_points.empty()
              && ((_head + offset) % _bufsz) == break_points[0];
     }
 
@@ -163,9 +163,15 @@ public:
       break_points.erase(break_points.begin());
     }
 
+    void clear_break_on_overwrite()
+    {
+      if (!break_points.empty() && break_points[0] == _head)
+        clear_next_break();
+    }
+
     bool put(char d)
     {
-      int was_empty = _tail == _head;
+      bool was_empty = empty();
       ++_sum_bytes;
 
       if (d == '\n')
@@ -176,8 +182,7 @@ public:
       if (++_head == _bufsz)
         _head = 0;
 
-      if (break_points.size() && break_points[0] == _head)
-        clear_next_break();
+      clear_break_on_overwrite();
 
       if (_head == _tail && ++_tail == _bufsz)
         _tail = 0;
@@ -187,7 +192,7 @@ public:
 
     bool put(const char *d, int len)
     {
-      int was_empty = _tail == _head;
+      bool was_empty = empty();
       _sum_bytes += len;
       while (len--)
         {
@@ -201,8 +206,7 @@ public:
           if(_head == _bufsz)
             _head = 0;
 
-          if (break_points.size() && break_points[0] == _head)
-            clear_next_break();
+          clear_break_on_overwrite();
         }
       return was_empty;
     }
