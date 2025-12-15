@@ -11,11 +11,11 @@
 unsigned Vcon_client::_dfl_obufsz = Vcon_client::Default_obuf_size;
 
 void
-Vcon_client::vcon_write(const char *buf, unsigned size) throw()
+Vcon_client::vcon_write(const char *buf, unsigned size) noexcept
 { cooked_write(buf, size); }
 
 unsigned
-Vcon_client::vcon_read(char *buf, unsigned size) throw()
+Vcon_client::vcon_read(char *buf, unsigned const size) noexcept
 {
   char const *d = 0;
   const int offset = 0;
@@ -57,14 +57,14 @@ Vcon_client::vcon_read(char *buf, unsigned size) throw()
 }
 
 int
-Vcon_client::vcon_set_attr(l4_vcon_attr_t const *a) throw()
+Vcon_client::vcon_set_attr(l4_vcon_attr_t const *a) noexcept
 {
   _attr = *a;
   return 0;
 }
 
 int
-Vcon_client::vcon_get_attr(l4_vcon_attr_t *attr) throw()
+Vcon_client::vcon_get_attr(l4_vcon_attr_t *attr) noexcept
 {
   *attr = _attr;
   return 0;

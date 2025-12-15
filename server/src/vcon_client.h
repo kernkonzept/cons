@@ -34,11 +34,11 @@ public:
            line_buffering, line_buffering_ms, sif, ctl)
   {}
 
-  void vcon_write(const char *buffer, unsigned size) throw();
-  unsigned vcon_read(char *buffer, unsigned size) throw();
+  void vcon_write(const char *buffer, unsigned size) noexcept;
+  unsigned vcon_read(char *buffer, unsigned size) noexcept;
 
-  int vcon_set_attr(l4_vcon_attr_t const *a) throw();
-  int vcon_get_attr(l4_vcon_attr_t *attr) throw();
+  int vcon_set_attr(l4_vcon_attr_t const *a) noexcept;
+  int vcon_get_attr(l4_vcon_attr_t *attr) noexcept;
 
   const l4_vcon_attr_t *attr() const { return &_attr; }
 
