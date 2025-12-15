@@ -15,6 +15,6 @@ class Vcon_fe : public Vcon_fe_base
 {
 public:
   Vcon_fe(L4::Cap<L4::Vcon> con, L4Re::Util::Object_registry *r);
-  int write(char const *buf, unsigned sz)
+  int write(char const *buf, unsigned sz) override
   { return do_write(buf, sz); }
 };

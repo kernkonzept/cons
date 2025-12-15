@@ -44,13 +44,13 @@ class Cmd_name_iter : public String_set_iter
 public:
   explicit Cmd_name_iter(Controller::Cmd const *cmd) : _cmd(cmd) {}
 
-  cxx::String value(cxx::String) const
+  cxx::String value(cxx::String) const override
   { return _cmd->name; }
 
-  void next()
+  void next() override
   { ++_cmd; }
 
-  bool has_more() const
+  bool has_more() const override
   { return _cmd->name; }
 
 private:
@@ -64,7 +64,7 @@ public:
   : _client(c->begin()), _e(c->end())
   {}
 
-  cxx::String value(cxx::String buf) const
+  cxx::String value(cxx::String buf) const override
   {
     if ((*_client)->idx == 0)
       return (*_client)->tag().c_str();
@@ -74,10 +74,10 @@ public:
     return buf;
   }
 
-  void next()
+  void next() override
   { ++_client; }
 
-  bool has_more() const
+  bool has_more() const override
   { return _client != _e; }
 
 private:

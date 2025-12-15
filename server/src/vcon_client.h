@@ -42,9 +42,9 @@ public:
 
   const l4_vcon_attr_t *attr() const { return &_attr; }
 
-  void trigger() const { _irq.trigger(); }
+  void trigger() const override { _irq.trigger(); }
 
-  bool collected() { return Client::collected(); }
+  bool collected() override { return Client::collected(); }
 
   static void default_obuf_size(unsigned bufsz)
   {

@@ -47,24 +47,24 @@ public:
   ~Mux_i() { delete _self_client; }
 
   void write_tag(Client *client);
-  void write(Client *tag, const char *msg, unsigned len_msg);
-  void flush(Client *tag);
+  void write(Client *tag, const char *msg, unsigned len_msg) override;
+  void flush(Client *tag) override;
 
-  int vsys_msg(const char *fmt, va_list args);
-  int vprintf(const char *fmt, va_list args);
+  int vsys_msg(const char *fmt, va_list args) override;
+  int vprintf(const char *fmt, va_list args) override;
 
-  void show(Client *c);
-  void hide(Client *c);
-  void connect(Client *client);
-  void disconnect(Client *client, bool show_prompt = true);
+  void show(Client *c) override;
+  void hide(Client *c) override;
+  void connect(Client *client) override;
+  void disconnect(Client *client, bool show_prompt = true) override;
 
-  void input(cxx::String const &buf);
-  void add_frontend(Frontend *f);
-  void cat(Client *c, bool add_nl);
-  void tail(Client *tag, int numlines, bool add_nl);
+  void input(cxx::String const &buf) override;
+  void add_frontend(Frontend *f) override;
+  void cat(Client *c, bool add_nl) override;
+  void tail(Client *tag, int numlines, bool add_nl) override;
 
   bool is_connected() const { return _connected != _self_client; }
-  char const *name() const { return _name; }
+  char const *name() const override { return _name; }
 
 private:
   Mux_i(Mux_i const &) = delete;
@@ -91,12 +91,12 @@ private:
     Esc esc;
 
     Mux_input_buf() : p(0), in_cmd_seq(0)  {}
-    cxx::String string() const { return cxx::String(b, p); }
+    cxx::String string() const override { return cxx::String(b, p); }
     void clear() { p = 0; }
     void add(char c) { if (p < sizeof(b)) b[p++] = c; }
     bool full() const { return p == sizeof(b); }
 
-    int replace(cxx::String &del, cxx::String add)
+    int replace(cxx::String &del, cxx::String add) override
     {
       if (p + add.len() - del.len() >= sizeof(b))
         return -L4_ENOMEM;
@@ -130,7 +130,7 @@ private:
   void do_client_output(Client const *v, int taillines, bool add_nl);
 
   // Sink::write
-  void write(char const *buf, unsigned size) const
+  void write(char const *buf, unsigned size) const override
   {
     for (Fe_iter i = const_cast<Fe_list&>(_fe).begin(); i != _fe.end(); ++i)
       {

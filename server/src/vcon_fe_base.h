@@ -36,7 +36,7 @@ public:
 
 protected:
   int do_write(char const *buf, unsigned sz);
-  bool check_input() { return _vcon->read(0, 0) > 0; }
+  bool check_input() override { return _vcon->read(0, 0) > 0; }
   void handle_pending_input();
 
   L4::Cap<L4::Vcon> _vcon; // FIXME: could be an auto cap
