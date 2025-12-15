@@ -144,6 +144,14 @@ public:
       return l;
     }
 
+    /**
+     * Place a break signal at the current head.
+     *
+     * Logically speaking, this adds content to the buffer and if the buffer
+     * was empty before, the client must be notified of the new data to read.
+     *
+     * \return True, iff the client needs to be notified.
+     */
     bool put_break()
     {
       if (break_points.empty() || break_points.back() != _head)
@@ -152,17 +160,26 @@ public:
       return empty();
     }
 
+    /**
+     * Check if the next break signal is at the given offset from tail.
+     *
+     * \param offset  Byte offset from tail.
+     *
+     * \retval True, iff the next break signal is registered there.
+     */
     bool is_next_break(int offset) const
     {
       return    !break_points.empty()
-             && ((_head + offset) % _bufsz) == break_points[0];
+             && ((_tail + offset) % _bufsz) == break_points[0];
     }
 
+    /// Clear the next break signal in the queue.
     void clear_next_break()
     {
       break_points.erase(break_points.begin());
     }
 
+    /// Clear an old break signal located under the new _head marker.
     void clear_break_on_overwrite()
     {
       if (!break_points.empty() && break_points[0] == _head)
