@@ -106,8 +106,12 @@ public:
     };
 
     explicit Buf(size_t sz)
-    : _buf(new char [sz]), _bufsz(sz)
-    {}
+    : _buf(new char [sz + 1]), _bufsz(sz)
+    {
+      // allocate another byte and set it to zero to prevent accidental
+      // out-of-bound reads due to wrongfully using the byte array as C-string.
+      memset(_buf + sz, 0, 1);
+    }
 
     Buf() = delete;
     ~Buf() { delete [] _buf; }
