@@ -31,21 +31,27 @@ Vcon_client::vcon_read(char *buf, unsigned size) throw()
     }
 
   unsigned i = 0;
+  bool break_signal = false;
   for (; i < r; ++i)
     {
       if (rbuf()->is_next_break(offset + i))
-        break;
+        {
+          break_signal = true;
+          break;
+        }
       buf[i] = d[i];
     }
 
   rbuf()->clear(i);
 
-  if (   i == r
-      && (r < size || rbuf()->empty()))
-    status |= L4_VCON_READ_STAT_DONE;
-
-  if (!rbuf()->empty())
-    i = size + 1;
+  if (!break_signal)
+    {
+      if (rbuf()->empty())
+        status |= L4_VCON_READ_STAT_DONE;
+      else
+        i = size + 1;
+    }
+  // else: break signal encountered: report bytes read
 
   return i | status;
 }
