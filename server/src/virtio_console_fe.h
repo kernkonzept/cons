@@ -98,12 +98,12 @@ public:
     return sz;
   }
 
-  bool check_input() { return false; }
+  bool check_input() override { return false; }
 
-  Server_iface *server_iface() const
+  Server_iface *server_iface() const override
   { return L4::Epiface::server_iface(); }
 
-  bool collected() { return false; }
+  bool collected() override { return false; }
 private:
   std::queue<std::string> _output_buffer;
 };
