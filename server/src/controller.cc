@@ -537,7 +537,7 @@ Controller::cmd_keep(Mux *mux, int argc, Arg *a)
 
 int Controller::cmd_key(Mux *mux, int argc, Arg *a)
 {
-  if (argc < 2)
+  if (argc < 3)
     {
       mux->printf("Usage: key channel character\n");
       return 0;
