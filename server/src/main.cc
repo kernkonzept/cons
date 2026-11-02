@@ -59,8 +59,8 @@ struct Config_opts
   // By default, merge client write requests to a single request containing an
   // entire line (until a newline is detected).
   bool default_line_buffering = true;
-  // In line-buffered mode, timeout for write the client output even if no
-  // newline was detected.
+  // In line-buffered mode, timeout in milliseconds for writing the client
+  // output even if no newline was detected. A minimal value of 1 is enforced.
   unsigned default_line_buffering_ms = 50;
   // By default, show time stamps for all consoles.
   bool default_timestamp;
@@ -277,6 +277,10 @@ Cons_svr::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
                     cs.substr(v).from_dec(&bufsz);
                 }
             }
+
+          // enforce sane minimal timeout
+          if (line_buffering_ms < 1)
+            line_buffering_ms = 1;
 
           Client *v;
           L4::Cap<void> v_cap;

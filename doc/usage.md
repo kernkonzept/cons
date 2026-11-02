@@ -115,7 +115,7 @@ cons accepts the following command line switches:
 * `--line-buffering-ms <timeout>`
 
   Timeout in milliseconds before buffered client output is written even
-  without a newline. Default value is 50.
+  without a newline. Default value is 50. A minimum value of 1 is enforced.
 
 * `-m <prompt name>`, `--mux <prompt name>`
 
@@ -166,6 +166,7 @@ cons accepts the following per-client options:
 
   Timeout in milliseconds before buffered output of this client is written
   even without a newline, deviating from the `--line-buffering-ms` default.
+  A minimum value of 1 is enforced.
 
 * `show` / `hide`
 
