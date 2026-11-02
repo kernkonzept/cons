@@ -262,6 +262,9 @@ Cons_svr::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
                     line_buffering = true;
                   else if (cs == "no-line-buffering")
                     line_buffering = false;
+                  else if (cxx::String::Index t = cs.starts_with("line-buffering-ms="))
+                    cs.substr(t).from_dec(&line_buffering_ms);
+                  // backward compatibility
                   else if (cxx::String::Index t = cs.starts_with("line-buffered-ms="))
                     cs.substr(t).from_dec(&line_buffering_ms);
                   else if (cs == "timestamp")

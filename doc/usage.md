@@ -162,7 +162,7 @@ cons accepts the following per-client options:
 
   Line buffering is enabled / disabled for this client.
 
-* `line-buffered-ms=<timeout>`
+* `line-buffering-ms=<timeout>`
 
   Timeout in milliseconds before buffered output of this client is written
   even without a newline, deviating from the `--line-buffering-ms` default.
