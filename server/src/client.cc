@@ -141,8 +141,8 @@ Client::cooked_write(const char *buf, long size) noexcept
       if (_output)
         {
           Buf::Index write_until = w->head();
-          // If line buffering is enabled only print complete lines, except when an
-          // incomplete line spans the entire write buffer.
+          // If line buffering is enabled only print complete lines, except when
+          // an incomplete line spans the entire write buffer.
           if (_line_buffering && batch_size > 0)
             write_until = last_nl;
 
