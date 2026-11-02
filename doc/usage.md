@@ -149,7 +149,9 @@ cons accepts the following per-client options:
 
   Use a buffer of `n` bytes for this client, deviating from the default
   buffer size.  Values below 512 mean 'no preference' and select the default
-  size, larger values are capped at 16 MiB.
+  size, larger values are capped at 16 MiB. Values that are not a decimal
+  number or that exceed 4294967295 are rejected and the console is not
+  created.
 
 * `keep` / `no-keep`
 

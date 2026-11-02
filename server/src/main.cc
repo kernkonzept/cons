@@ -314,7 +314,12 @@ Cons_svr::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
                   else if (cxx::String::Index k = cs.starts_with("key="))
                     key = *k;
                   else if (cxx::String::Index v = cs.starts_with("bufsz="))
-                    cs.substr(v).from_dec(&bufsz);
+                    {
+                      auto sz = parse_unsigned(cs.substr(v), UINT_MAX);
+                      if (!sz)
+                        return -L4_EINVAL;
+                      bufsz = *sz;
+                    }
                 }
             }
 
