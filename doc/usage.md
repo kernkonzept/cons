@@ -167,7 +167,8 @@ cons accepts the following per-client options:
 
   Timeout in milliseconds before buffered output of this client is written
   even without a newline, deviating from the `--line-buffering-ms` default.
-  A minimum value of 1 is enforced.
+  A minimum value of 1 is enforced. Values that are not a decimal number or
+  that exceed 4294967 are rejected and the console is not created.
 
 * `show` / `hide`
 

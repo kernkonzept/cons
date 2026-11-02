@@ -39,7 +39,6 @@
 #include <algorithm>
 #include <charconv>
 #include <climits>
-#include <cstring>
 #include <optional>
 #include <set>
 #include <getopt.h>
@@ -192,6 +191,26 @@ Cons_svr::create(std::string const &tag, int color, CLI **vout, size_t bufsz,
   return 0;
 }
 
+/**
+ * Parse a decimal unsigned number.
+ *
+ * \param s    String to parse. The whole string must consist of decimal
+ *             digits; leading white space or a sign is not accepted.
+ * \param max  Largest accepted value.
+ *
+ * \return The parsed value if `s` is a valid number in the range [0, `max`],
+ *         otherwise an empty optional.
+ */
+static std::optional<unsigned>
+parse_unsigned(cxx::String const &s, unsigned max)
+{
+  unsigned v;
+  auto [ptr, ec] = std::from_chars(s.start(), s.end(), v);
+  if (ec != std::errc() || ptr != s.end() || v > max)
+    return std::nullopt;
+  return v;
+}
+
 int
 Cons_svr::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
                     l4_mword_t proto, L4::Ipc::Varg_list_ref args)
@@ -251,6 +270,14 @@ Cons_svr::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
           Client::Key key;
           size_t bufsz = 0;
 
+          auto set_line_buffering_ms = [&line_buffering_ms](cxx::String const &v)
+            {
+              auto ms = parse_unsigned(v, Config_opts::Max_line_buffering_ms);
+              if (ms)
+                line_buffering_ms = *ms;
+              return ms.has_value();
+            };
+
           for (L4::Ipc::Varg opts: args)
             {
               if (opts.is_of<char const *>() && opts.length() >= 1)
@@ -270,10 +297,16 @@ Cons_svr::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
                   else if (cs == "no-line-buffering")
                     line_buffering = false;
                   else if (cxx::String::Index t = cs.starts_with("line-buffering-ms="))
-                    cs.substr(t).from_dec(&line_buffering_ms);
+                    {
+                      if (!set_line_buffering_ms(cs.substr(t)))
+                        return -L4_EINVAL;
+                    }
                   // backward compatibility
                   else if (cxx::String::Index t = cs.starts_with("line-buffered-ms="))
-                    cs.substr(t).from_dec(&line_buffering_ms);
+                    {
+                      if (!set_line_buffering_ms(cs.substr(t)))
+                        return -L4_EINVAL;
+                    }
                   else if (cs == "timestamp")
                     timestamp = true;
                   else if (cs == "no-timestamp")
@@ -350,23 +383,10 @@ Cons_svr::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
 static std::optional<unsigned>
 parse_unsigned_arg(char const *opt, char const *arg, unsigned max)
 {
-  char const *end = arg + strlen(arg);
-  unsigned v;
-  auto [ptr, ec] = std::from_chars(arg, end, v);
-
-  if (ec == std::errc::invalid_argument || ptr != end)
-    {
-      printf("ERROR: invalid number '%s' for option --%s.\n", arg, opt);
-      return std::nullopt;
-    }
-
-  if (ec == std::errc::result_out_of_range || v > max)
-    {
-      printf("ERROR: value '%s' for option --%s out of range (max %u).\n",
-             arg, opt, max);
-      return std::nullopt;
-    }
-
+  auto v = parse_unsigned(cxx::String(arg), max);
+  if (!v)
+    printf("ERROR: invalid value '%s' for option --%s (expected a number "
+           "from 0 to %u).\n", arg, opt, max);
   return v;
 }
 
