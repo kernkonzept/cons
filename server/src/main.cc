@@ -230,7 +230,9 @@ Cons_svr::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
           L4::Ipc::Varg col = args.pop_front();
 
           int color;
-          if (col.is_of<char const *>() && col.length() >= 1)
+          if (col.is_nil())
+            color = 7;
+          else if (col.is_of<char const *>() && col.length() >= 1)
             {
               cxx::String cs(col.value<char const*>(), col.length() - 1);
 
@@ -247,7 +249,7 @@ Cons_svr::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
                     case 'M': bright = 1; /* FALLTHRU */ case 'm': c = 5; break;
                     case 'C': bright = 1; /* FALLTHRU */ case 'c': c = 6; break;
                     case 'W': bright = 1; /* FALLTHRU */ case 'w': c = 7; break;
-                    default: c = 0;
+                    default: return -L4_EINVAL;
                     }
                 }
 
@@ -257,7 +259,7 @@ Cons_svr::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
           else if (col.is_of_int())
             color = col.value<l4_mword_t>();
           else
-            color = 7;
+            return -L4_EINVAL;
 
           // length() >= 1 checked above
           std::string ts(tag.value<char const*>(), tag.length() - 1);
@@ -280,47 +282,49 @@ Cons_svr::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
 
           for (L4::Ipc::Varg opts: args)
             {
-              if (opts.is_of<char const *>() && opts.length() >= 1)
-                {
-                  cxx::String cs(opts.value<char const *>(), opts.length() - 1);
+              if (!opts.is_of<char const *>() || opts.length() < 1)
+                return -L4_EINVAL;
 
-                  if (cs == "hide")
-                    show = false;
-                  else if (cs == "show")
-                    show = true;
-                  else if (cs == "keep")
-                    keep = true;
-                  else if (cs == "no-keep")
-                    keep = false;
-                  else if (cs == "line-buffering")
-                    line_buffering = true;
-                  else if (cs == "no-line-buffering")
-                    line_buffering = false;
-                  else if (cxx::String::Index t = cs.starts_with("line-buffering-ms="))
-                    {
-                      if (!set_line_buffering_ms(cs.substr(t)))
-                        return -L4_EINVAL;
-                    }
-                  // backward compatibility
-                  else if (cxx::String::Index t = cs.starts_with("line-buffered-ms="))
-                    {
-                      if (!set_line_buffering_ms(cs.substr(t)))
-                        return -L4_EINVAL;
-                    }
-                  else if (cs == "timestamp")
-                    timestamp = true;
-                  else if (cs == "no-timestamp")
-                    timestamp = false;
-                  else if (cxx::String::Index k = cs.starts_with("key="))
-                    key = *k;
-                  else if (cxx::String::Index v = cs.starts_with("bufsz="))
-                    {
-                      auto sz = parse_unsigned(cs.substr(v), UINT_MAX);
-                      if (!sz)
-                        return -L4_EINVAL;
-                      bufsz = *sz;
-                    }
+              cxx::String cs(opts.value<char const *>(), opts.length() - 1);
+
+              if (cs == "hide")
+                show = false;
+              else if (cs == "show")
+                show = true;
+              else if (cs == "keep")
+                keep = true;
+              else if (cs == "no-keep")
+                keep = false;
+              else if (cs == "line-buffering")
+                line_buffering = true;
+              else if (cs == "no-line-buffering")
+                line_buffering = false;
+              else if (cxx::String::Index t = cs.starts_with("line-buffering-ms="))
+                {
+                  if (!set_line_buffering_ms(cs.substr(t)))
+                    return -L4_EINVAL;
                 }
+              // backward compatibility
+              else if (cxx::String::Index t = cs.starts_with("line-buffered-ms="))
+                {
+                  if (!set_line_buffering_ms(cs.substr(t)))
+                    return -L4_EINVAL;
+                }
+              else if (cs == "timestamp")
+                timestamp = true;
+              else if (cs == "no-timestamp")
+                timestamp = false;
+              else if (cxx::String::Index k = cs.starts_with("key="))
+                key = *k;
+              else if (cxx::String::Index v = cs.starts_with("bufsz="))
+                {
+                  auto sz = parse_unsigned(cs.substr(v), UINT_MAX);
+                  if (!sz)
+                    return -L4_EINVAL;
+                  bufsz = *sz;
+                }
+              else
+                return -L4_EINVAL;
             }
 
           // enforce sane minimal timeout

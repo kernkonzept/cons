@@ -143,7 +143,18 @@ cons accepts the following command line switches:
    * `L4.Proto.Log`: L4::Vcon client
    * `1`: Virtio console client
 
-cons accepts the following per-client options:
+* `color`
+
+   The color of the client's output, either as an integer or as a string. For
+   a string, only the first character is relevant and must be one of `n`
+   (no color, i.e. the terminal's default), `r` (red), `g` (green), `y`
+   (yellow), `b` (blue), `m` (magenta), `c` (cyan) or `w` (white). An upper
+   case character selects the bright variant (`N`: bright black). An empty
+   string or nil selects white.
+
+cons accepts the following per-client options. All options must be strings.
+A color of an invalid type, an unknown color character, an option that is not
+a string or an unknown option is rejected and the console is not created.
 
 * `bufsz=n`
 
