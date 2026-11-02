@@ -37,6 +37,10 @@
 #include <terminate_handler-l4>
 
 #include <algorithm>
+#include <charconv>
+#include <climits>
+#include <cstring>
+#include <optional>
 #include <set>
 #include <getopt.h>
 
@@ -62,6 +66,9 @@ struct Config_opts
   // In line-buffered mode, timeout in milliseconds for writing the client
   // output even if no newline was detected. A minimal value of 1 is enforced.
   unsigned default_line_buffering_ms = 50;
+  // Upper limit for line buffering timeouts. The timeout is converted to
+  // microseconds, which must not overflow.
+  static constexpr unsigned Max_line_buffering_ms = UINT_MAX / 1000;
   // By default, show time stamps for all consoles.
   bool default_timestamp;
   // Currently unused.
@@ -329,6 +336,39 @@ Cons_svr::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &obj,
     }
 }
 
+/**
+ * Parse a decimal unsigned command line option argument.
+ *
+ * \param opt  Name of the option (for error messages).
+ * \param arg  Option argument to parse.
+ * \param max  Largest accepted value.
+ *
+ * \return The parsed value if the argument is a valid number in the range
+ *         [0, `max`]. Otherwise an empty optional; an error message was
+ *         printed in this case.
+ */
+static std::optional<unsigned>
+parse_unsigned_arg(char const *opt, char const *arg, unsigned max)
+{
+  char const *end = arg + strlen(arg);
+  unsigned v;
+  auto [ptr, ec] = std::from_chars(arg, end, v);
+
+  if (ec == std::errc::invalid_argument || ptr != end)
+    {
+      printf("ERROR: invalid number '%s' for option --%s.\n", arg, opt);
+      return std::nullopt;
+    }
+
+  if (ec == std::errc::result_out_of_range || v > max)
+    {
+      printf("ERROR: value '%s' for option --%s out of range (max %u).\n",
+             arg, opt, max);
+      return std::nullopt;
+    }
+
+  return v;
+}
 
 int main(int argc, char const *argv[])
 {
@@ -454,7 +494,14 @@ int main(int argc, char const *argv[])
           default_name = optarg;
           break;
         case OPT_DEFAULT_BUFSIZE:
-          Client::default_obuf_size(atoi(optarg));
+            {
+              // The value is clamped to a sane range by default_obuf_size().
+              auto bufsz = parse_unsigned_arg("defaultbufsize", optarg,
+                                              UINT_MAX);
+              if (!bufsz)
+                return EXIT_FAILURE;
+              Client::default_obuf_size(*bufsz);
+            }
           break;
         case OPT_LINE_BUFFERING:
           config.default_line_buffering = true;
@@ -463,7 +510,13 @@ int main(int argc, char const *argv[])
           config.default_line_buffering = false;
           break;
         case OPT_LINE_BUFFERING_MS:
-          config.default_line_buffering_ms = atoi(optarg);
+            {
+              auto ms = parse_unsigned_arg("line-buffering-ms", optarg,
+                                           Config_opts::Max_line_buffering_ms);
+              if (!ms)
+                return EXIT_FAILURE;
+              config.default_line_buffering_ms = *ms;
+            }
           break;
         default:
           // Unknown option or missing argument. getopt_long() already

@@ -116,6 +116,7 @@ cons accepts the following command line switches:
 
   Timeout in milliseconds before buffered client output is written even
   without a newline. Default value is 50. A minimum value of 1 is enforced.
+  The maximum value is 4294967.
 
 * `-m <prompt name>`, `--mux <prompt name>`
 
