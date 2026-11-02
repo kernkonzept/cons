@@ -465,7 +465,18 @@ int main(int argc, char const *argv[])
         case OPT_LINE_BUFFERING_MS:
           config.default_line_buffering_ms = atoi(optarg);
           break;
+        default:
+          // Unknown option or missing argument. getopt_long() already
+          // printed a diagnostic message.
+          printf("ERROR: invalid command line.\n");
+          return EXIT_FAILURE;
         }
+    }
+
+  if (optind < argc)
+    {
+      printf("ERROR: unexpected command line argument '%s'.\n", argv[optind]);
+      return EXIT_FAILURE;
     }
 
   // now check if we had any explicit options
