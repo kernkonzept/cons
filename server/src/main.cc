@@ -334,8 +334,9 @@ int main(int argc, char const *argv[])
     OPT_FE = 'f',
     OPT_VFE = 'V',
     OPT_KEEP = 'k',
+    OPT_LINE_BUFFERING = 1,
     OPT_NO_LINE_BUFFERING = 'l',
-    OPT_LINE_BUFFERING_MS = 1,
+    OPT_LINE_BUFFERING_MS = 2,
     OPT_TIMESTAMP = 't',
     OPT_AUTOCONNECT = 'c',
     OPT_DEFAULT_NAME = 'n',
@@ -349,6 +350,7 @@ int main(int argc, char const *argv[])
     { "frontend",          required_argument, 0, OPT_FE },
     { "virtio-device-frontend", required_argument, 0, OPT_VFE },
     { "keep",              no_argument,       0, OPT_KEEP },
+    { "line-buffering",    no_argument,       0, OPT_LINE_BUFFERING },
     { "no-line-buffering", no_argument,       0, OPT_NO_LINE_BUFFERING },
     { "line-buffering-ms", required_argument, 0, OPT_LINE_BUFFERING_MS },
     { "timestamp",         no_argument,       0, OPT_TIMESTAMP },
@@ -446,6 +448,9 @@ int main(int argc, char const *argv[])
           break;
         case OPT_DEFAULT_BUFSIZE:
           Client::default_obuf_size(atoi(optarg));
+          break;
+        case OPT_LINE_BUFFERING:
+          config.default_line_buffering = true;
           break;
         case OPT_NO_LINE_BUFFERING:
           config.default_line_buffering = false;

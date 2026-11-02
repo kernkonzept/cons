@@ -108,6 +108,10 @@ cons accepts the following command line switches:
   with the current line content. Specifying this switch disables the line
   buffered mode by default.
 
+* `--line-buffering`
+
+  Override the effect of `--no-line-buffering` by re-enabling line buffering.
+
 * `--line-buffering-ms <timeout>`
 
   Timeout in milliseconds before buffered client output is written even
